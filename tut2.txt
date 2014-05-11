@@ -1,0 +1,7 @@
+The factor of 2 comes from the fact that we are pulling the left and
+right neighbours to calculate the derivative.  Since each point is dx
+away from our central point, the total distance between the left and
+right neighbours is 2dx, so when calculating the numerical derivative,
+we need to divide by 2dx rather than just dx.
+
+

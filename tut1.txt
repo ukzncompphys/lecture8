@@ -1,0 +1,18 @@
+#Look at hydro1d.py.  you’ll see an assert guaranteed to fail at the end of get_bc, the boundary condition routine.  Why did I do this?
+
+The code only implements periodic and smooth boundary conditions.
+Nowhere else in the code does it check that the boundary conditions
+are set to one of these two values, so it is perfectly possible that
+a user could set the boundary conditions to be an invalid type.  So,
+the boudary condition loops over legal boundary conditions; when it
+finds one, it fills in the boundary conditions and returns.  The code
+will only get to the assert statement if an unrecognized class of
+boundary conditions is specified.  Without some sort of error message,
+the code would continue to run, but with the boundary condition
+routine doing nothing, which would likely produce incorrect results
+without any warning.  Needless to say, this is a bad thing, hence the
+assert.  Had this not been a tutorial problem, I would have included
+an error message (e.g. print 'unrecognized boundary conditions
+requested').
+
+

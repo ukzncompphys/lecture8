@@ -91,7 +91,22 @@ class Fluid:
         self.gradrhoE=drhoE
     def get_timestep(self,dt=0.1):
         #tutorial problem 3 - what should this timestep actually be from CFL?
-        return 0.5*dt  #*self.dx
+        #recall that c_s^2 = dP/drho, if P=a*rho^gamma, then simple calculus
+        #shows that c_s^2= gamma*P/rho
+
+        c_s=numpy.sqrt(self.gamma*self.P/self.rho)
+        #we want maximum magnitude of v+/- c_s, so we can simply take
+        #the maximum of |v|+|c_s|
+        vmax=numpy.max(numpy.abs(c_s)+numpy.abs(self.v))
+        #we now have the maximum velocity.  So the marginally stable timestep 
+        #is dx/vmax.  The tutorial instructions request that we return the input argument
+        #times the global marginally stable step
+
+        ts= self.dx/vmax*dt
+        #print 'dt is ' + repr(ts)
+        return ts
+
+
     def take_step(self):
         #before we can do anything else, get the boundary gonditions
         self.get_bc()
@@ -109,6 +124,8 @@ class Fluid:
         self.rho+=self.gradrho*dt
         self.p+=self.gradp*dt
         self.rhoE+=self.gradrhoE*dt
+        #return the timestep so we can keep track of global time
+        return dt
 
 def pp(x):
     plt.clf()
@@ -128,7 +145,14 @@ if __name__=='__main__':
 
 
     for i in range(0,1000):
-        fluid.take_step()
+        tt=0
+        #to take a given macroscopic step, we may now have to take many small steps
+        #as set by the CFL condition.  Once we've gone far enough, update the plot.
+        while (tt<0.02):
+            tt=tt+fluid.take_step()
         plt.clf()
         plt.plot(fluid.rho)
         plt.draw()
+    #let's print the final fluid configuration to disk.  Note that the oscillations
+    #we saw in lecture are gone now.
+    plt.savefig('tut3.png')
